@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 import type { Task } from "../../models/Task";
 import CardComponent from "../Card/CardComponent";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -7,58 +7,43 @@ import type { DropResult } from "@hello-pangea/dnd";
 
 interface ResultsProps {
   tasks: Task[];
+  setTasks: Dispatch<SetStateAction<Task[]>>;
 }
 
-function Results({ tasks: initialTasks }: ResultsProps) {
-  const [tasks, setTasks] = useState(initialTasks);
+function Results({ tasks, setTasks }: ResultsProps) {
 
-const handleDragEnd = (result: DropResult) => {
-  const { destination, source, draggableId } = result;
-  if (!destination) return;
+  const handleDragEnd = (result: DropResult) => {
+    const { destination, source, draggableId } = result;
+    if (!destination) return;
 
-  // si no se mueve, no hagas nada
-  if (
-    destination.droppableId === source.droppableId &&
-    destination.index === source.index
-  ) {
-    return;
-  }
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) return;
 
-  // crear copia mutable de tasks
-  const updatedTasks = Array.from(tasks);
+    const updatedTasks = Array.from(tasks);
+    const [movedTask] = updatedTasks.splice(
+      updatedTasks.findIndex((t) => t.id.toString() === draggableId),
+      1
+    );
 
-  // remover el task que movemos
-  const [movedTask] = updatedTasks.splice(
-    updatedTasks.findIndex((t) => t.id.toString() === draggableId),
-    1
-  );
+    movedTask.status = destination.droppableId as Task["status"];
 
-  // actualizarle el status si cambió de columna
-  movedTask.status = destination.droppableId as Task["status"];
+    const beforeTasks = updatedTasks.filter(
+      (t) => t.status === destination.droppableId
+    );
 
-  // encontrar posición destino entre tasks con mismo status
-  const beforeTasks = updatedTasks.filter(
-    (t) => t.status === destination.droppableId
-  );
+    let insertAt = updatedTasks.findIndex(
+      (t) =>
+        t.status === destination.droppableId &&
+        beforeTasks.indexOf(t) === destination.index
+    );
 
-  // calcular índice real en el array global
-  let insertAt = updatedTasks.findIndex(
-    (t) =>
-      t.status === destination.droppableId &&
-      beforeTasks.indexOf(t) === destination.index
-  );
+    if (insertAt === -1) insertAt = updatedTasks.length;
 
-  if (insertAt === -1) {
-    // si no hay nadie adelante → insertar al final
-    insertAt = updatedTasks.length;
-  }
-
-  // insertar en la posición calculada
-  updatedTasks.splice(insertAt, 0, movedTask);
-
-  setTasks(updatedTasks);
-};
-
+    updatedTasks.splice(insertAt, 0, movedTask);
+    setTasks(updatedTasks);
+  };
 
   return (
     <>

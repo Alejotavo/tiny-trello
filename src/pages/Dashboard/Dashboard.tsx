@@ -9,7 +9,7 @@ function Dashboard() {
   return (
     <>
       <CreateTask setTasks={setTasks} />
-      <Results tasks={tasks} />
+      <Results tasks={tasks} setTasks={setTasks}/>
     </>
   );
 }
