@@ -1,0 +1,28 @@
+.create-task {
+    background-color: #262626;
+    padding: 1rem;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.results-container {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    justify-content: space-around;
+}
+
+.card {
+    background-color: #cecece;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    margin: 10px 0;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
